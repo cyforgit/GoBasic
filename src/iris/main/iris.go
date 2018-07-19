@@ -2,22 +2,23 @@ package main
 
 import (
 	"github.com/kataras/iris"
-	"github.com/kataras/iris/middleware/logger"
-	"github.com/kataras/iris/middleware/recover"
+	//"github.com/kataras/iris/middleware/recover"
 )
 
 func main() {
 	app := iris.New()
-	app.Logger().SetLevel("debug")
-	app.RegisterView(iris.HTML("./views", ".html"))
-
+	app.Use(recover.New())
+	i := 0
+	// let's simulate a panic every next request
 	app.Get("/", func(ctx iris.Context) {
-
-		ctx.ViewData("message", "Hello world!")
-
-		ctx.View("index.html")
+		i++
+		if i%2 == 0 {
+			panic("a panic here")
+		}
+		ctx.Writef("Hello, refresh one time more to get panic!")
 	})
 
+	// http://localhost:8080, refresh it 5-6 times.
 	app.Run(iris.Addr(":8080"))
 
 }
